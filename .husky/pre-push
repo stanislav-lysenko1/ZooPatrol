@@ -1,0 +1,5 @@
+npm run test
+npx eslint $(git diff --cached --name-only --diff-filter=ACMR | sed 's| |\\ |g') --fix
+git update-index --again
+npm run type:check
+

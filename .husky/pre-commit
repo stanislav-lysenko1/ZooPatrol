@@ -1,0 +1,21 @@
+failed=0
+
+npm run type:check || failed=1
+
+npx prettier $(git diff --cached --name-only --diff-filter=ACMR | sed 's| |\\ |g') --write --ignore-unknown || failed=1
+git update-index --again
+
+npx eslint $(git diff --cached --name-only --diff-filter=ACMR | sed 's| |\\ |g') --fix || failed=1
+git update-index --again
+
+files=($(git diff --cached --name-only --diff-filter=ACMR -- '*.js' '*.jsx' '*.ts' '*.tsx'))
+
+if [ ${#files[@]} -eq 0 ]; then
+  echo "No staged JS/TS files. Skipping Jest."
+else
+  npx jest --findRelatedTests --passWithNoTests "${files[@]}" || failed=1
+fi
+
+git update-index --again
+
+exit $failed
